@@ -2,9 +2,7 @@ module github/com/fischyn/omfetch
 
 go 1.24.3
 
-require (
-	github.com/shirou/gopsutil/v4 v4.25.4
-)
+require github.com/shirou/gopsutil/v4 v4.25.4
 
 require (
 	github.com/ebitengine/purego v0.8.3 // indirect
