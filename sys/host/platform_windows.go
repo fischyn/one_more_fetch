@@ -25,8 +25,7 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		&handler,
 	)
 	if err != nil {
-		// have no idea what to do here...
-		return "", "", "", "", err
+		return
 	}
 	defer windows.RegCloseKey(handler)
 
@@ -42,8 +41,7 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		&bufLen,
 	)
 	if err != nil {
-		// have no idea what to do here...
-		return "", "", "", "", err
+		return
 	}
 
 	regBuf := make([]uint16, bufLen/2+1)
@@ -56,8 +54,7 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		&bufLen,
 	)
 	if err != nil {
-		// have no idea what to do here...
-		return "", "", "", "", err
+		return
 	}
 	platform = windows.UTF16ToString(regBuf)
 
