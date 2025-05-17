@@ -1,37 +1,24 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
-	"github/com/fischyn/omfetch/sys"
+	"github/com/fischyn/omfetch/sys/host"
+	"github/com/fischyn/omfetch/sys/mem"
 )
 
 func main() {
-	memUsageStat, memErr := sys.MemUsage()
+	// Only for testing  now
+	memoryInfo, _ := mem.GetMemoryInfo(context.Background())
+	memoryJSData, _ := json.Marshal(memoryInfo)
 
-	if memErr != nil {
-		fmt.Printf("err: %v\n", memErr)
-	}
+	platform, family, version, displayVersion, _ := host.GetPlatformInfo(context.Background())
 
-	cpuInfo, cpuErr := sys.CpuInfo()
-
-	if cpuErr != nil {
-		fmt.Printf("err: %v\n", cpuErr)
-	}
-
-	memJsonData, memMarshalErr := json.Marshal(memUsageStat)
-	cpuJsonData, cpuMarshalErr := json.Marshal(cpuInfo)
-
-	if memMarshalErr != nil {
-		fmt.Printf("json marshal error: %v\n", memMarshalErr)
-		return
-	}
-
-	if cpuMarshalErr != nil {
-		fmt.Printf("json marshal error: %v\n", cpuMarshalErr)
-	}
-
-	fmt.Println(string(memJsonData))
-	fmt.Println(string(cpuJsonData))
+	fmt.Println(string(memoryJSData))
+	fmt.Printf("Platfrom: %s\n", platform)
+	fmt.Printf("Family: %s\n", family)
+	fmt.Printf("version: %s\n", version)
+	fmt.Printf("displayVersion: %s\n", displayVersion)
 }
