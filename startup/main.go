@@ -8,16 +8,30 @@ import (
 )
 
 func main() {
-	memUsageStat, err := sys.MemUsage()
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
+	memUsageStat, memErr := sys.MemUsage()
+
+	if memErr != nil {
+		fmt.Printf("err: %v\n", memErr)
 	}
 
-	jsonData, err := json.Marshal(memUsageStat)
-	if err != nil {
-		fmt.Printf("json marshal error: %v\n", err)
+	cpuInfo, cpuErr := sys.CpuInfo()
+
+	if cpuErr != nil {
+		fmt.Printf("err: %v\n", cpuErr)
+	}
+
+	memJsonData, memMarshalErr := json.Marshal(memUsageStat)
+	cpuJsonData, cpuMarshalErr := json.Marshal(cpuInfo)
+
+	if memMarshalErr != nil {
+		fmt.Printf("json marshal error: %v\n", memMarshalErr)
 		return
 	}
 
-	fmt.Println(string(jsonData))
+	if cpuMarshalErr != nil {
+		fmt.Printf("json marshal error: %v\n", cpuMarshalErr)
+	}
+
+	fmt.Println(string(memJsonData))
+	fmt.Println(string(cpuJsonData))
 }
