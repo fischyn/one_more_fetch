@@ -32,53 +32,25 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 	var bufLen uint32
 	var valType uint32
 
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`ProductName`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
+	// ProductName
+	err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`ProductName`), nil, &valType, nil, &bufLen)
 	if err != nil {
 		return
 	}
-
-	regBuf := make([]uint16, bufLen/2+1)
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`ProductName`),
-		nil,
-		&valType,
-		(*byte)(unsafe.Pointer(&regBuf[0])),
-		&bufLen,
-	)
+	productBuf := make([]uint16, bufLen/2+1)
+	err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`ProductName`), nil, &valType, (*byte)(unsafe.Pointer(&productBuf[0])), &bufLen)
 	if err != nil {
 		return
 	}
-	platform = windows.UTF16ToString(regBuf)
+	platform = windows.UTF16ToString(productBuf)
 
 	if strings.Contains(platform, "Windows 10") {
-		err = windows.RegQueryValueEx(
-			handler,
-			windows.StringToUTF16Ptr(`CurrentBuildNumber`),
-			nil,
-			&valType,
-			nil,
-			&bufLen,
-		)
+		err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`CurrentBuildNumber`), nil, &valType, nil, &bufLen)
 		if err == nil {
-			regBuf = make([]uint16, bufLen/2+1)
-			err = windows.RegQueryValueEx(
-				handler,
-				windows.StringToUTF16Ptr(`CurrentBuildNumber`),
-				nil,
-				&valType,
-				(*byte)(unsafe.Pointer(&regBuf[0])),
-				&bufLen,
-			)
+			buildBuf := make([]uint16, bufLen/2+1)
+			err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`CurrentBuildNumber`), nil, &valType, (*byte)(unsafe.Pointer(&buildBuf[0])), &bufLen)
 			if err == nil {
-				buildNumberStr := windows.UTF16ToString(regBuf)
+				buildNumberStr := windows.UTF16ToString(buildBuf)
 				if buildNumber, err := strconv.ParseInt(buildNumberStr, 10, 32); err == nil && buildNumber >= 22000 {
 					platform = strings.Replace(platform, "Windows 10", "Windows 11", 1)
 				}
@@ -89,73 +61,35 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		platform = "Microsoft " + platform
 	}
 
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`CSDVersion`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
-
+	// CSDVersion
+	err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`CSDVersion`), nil, &valType, nil, &bufLen)
 	if err == nil {
-		regBuf = make([]uint16, bufLen/2+1)
-		err = windows.RegQueryValueEx(
-			handler,
-			windows.StringToUTF16Ptr(`CSDVersion`),
-			nil,
-			&valType,
-			(*byte)(unsafe.Pointer(&regBuf[0])),
-			&bufLen,
-		)
+		csdBuf := make([]uint16, bufLen/2+1)
+		err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`CSDVersion`), nil, &valType, (*byte)(unsafe.Pointer(&csdBuf[0])), &bufLen)
 		if err == nil {
-			platform += " " + windows.UTF16ToString(regBuf)
+			platform += " " + windows.UTF16ToString(csdBuf)
 		}
 	}
 
+	// UBR
 	var UBR uint32
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`UBR`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
-	if err == nil {
-		regBuf := make([]byte, 4)
-		err = windows.RegQueryValueEx(
-			handler,
-			windows.StringToUTF16Ptr(`UBR`),
-			nil,
-			&valType,
-			(*byte)(unsafe.Pointer(&regBuf[0])),
-			&bufLen,
-		)
-
-		copy((*[4]byte)(unsafe.Pointer(&UBR))[:], regBuf)
+	err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`UBR`), nil, &valType, nil, &bufLen)
+	if err == nil && bufLen == 4 {
+		ubrBuf := make([]byte, 4)
+		err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`UBR`), nil, &valType, &ubrBuf[0], &bufLen)
+		if err == nil {
+			UBR = *(*uint32)(unsafe.Pointer(&ubrBuf[0]))
+		}
 	}
 
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`DisplayVersion`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
+	// DisplayVersion
+	err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`DisplayVersion`), nil, &valType, nil, &bufLen)
 	if err == nil {
-		regBuf := make([]uint16, bufLen/2+1)
-		err = windows.RegQueryValueEx(
-			handler,
-			windows.StringToUTF16Ptr(`DisplayVersion`),
-			nil,
-			&valType,
-			(*byte)(unsafe.Pointer(&regBuf[0])),
-			&bufLen,
-		)
-
-		displayVersion = windows.UTF16ToString(regBuf)
+		displayBuf := make([]uint16, bufLen/2+1)
+		err = windows.RegQueryValueEx(handler, windows.StringToUTF16Ptr(`DisplayVersion`), nil, &valType, (*byte)(unsafe.Pointer(&displayBuf[0])), &bufLen)
+		if err == nil {
+			displayVersion = windows.UTF16ToString(displayBuf)
+		}
 	}
 
 	version = fmt.Sprintf("%d.%d.%d.%d Build %d.%d",

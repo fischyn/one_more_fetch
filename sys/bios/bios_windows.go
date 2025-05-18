@@ -10,7 +10,6 @@ import (
 )
 
 func GetBiosInfo(_ context.Context) (product, manufacturer, family, version string, err error) {
-
 	var handler windows.Handle
 
 	err = windows.RegOpenKeyEx(
@@ -20,16 +19,15 @@ func GetBiosInfo(_ context.Context) (product, manufacturer, family, version stri
 		windows.KEY_READ|windows.KEY_WOW64_64KEY,
 		&handler,
 	)
-
-	defer windows.RegCloseKey(handler)
-
 	if err != nil {
 		return
 	}
+	defer windows.RegCloseKey(handler)
 
 	var bufLen uint32
 	var valType uint32
 
+	// SystemProductName
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemProductName`),
@@ -38,27 +36,25 @@ func GetBiosInfo(_ context.Context) (product, manufacturer, family, version stri
 		nil,
 		&bufLen,
 	)
-
 	if err != nil {
 		return
 	}
 
-	regBuf := make([]uint16, bufLen/2+1)
-
+	productBuf := make([]uint16, bufLen/2+1)
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemProductName`),
 		nil,
 		&valType,
-		(*byte)(unsafe.Pointer(&regBuf[0])),
+		(*byte)(unsafe.Pointer(&productBuf[0])),
 		&bufLen,
 	)
 	if err != nil {
 		return
 	}
+	product = windows.UTF16ToString(productBuf)
 
-	product = windows.UTF16ToString(regBuf)
-
+	// SystemManufacturer
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemManufacturer`),
@@ -67,25 +63,25 @@ func GetBiosInfo(_ context.Context) (product, manufacturer, family, version stri
 		nil,
 		&bufLen,
 	)
-
 	if err != nil {
 		return
 	}
 
+	manufacturerBuf := make([]uint16, bufLen/2+1)
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemManufacturer`),
 		nil,
 		&valType,
-		(*byte)(unsafe.Pointer(&regBuf[0])),
+		(*byte)(unsafe.Pointer(&manufacturerBuf[0])),
 		&bufLen,
 	)
 	if err != nil {
 		return
 	}
+	manufacturer = windows.UTF16ToString(manufacturerBuf)
 
-	manufacturer = windows.UTF16ToString(regBuf)
-
+	// SystemFamily
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemFamily`),
@@ -94,25 +90,25 @@ func GetBiosInfo(_ context.Context) (product, manufacturer, family, version stri
 		nil,
 		&bufLen,
 	)
-
 	if err != nil {
 		return
 	}
 
+	familyBuf := make([]uint16, bufLen/2+1)
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`SystemFamily`),
 		nil,
 		&valType,
-		(*byte)(unsafe.Pointer(&regBuf[0])),
+		(*byte)(unsafe.Pointer(&familyBuf[0])),
 		&bufLen,
 	)
 	if err != nil {
 		return
 	}
+	family = windows.UTF16ToString(familyBuf)
 
-	family = windows.UTF16ToString(regBuf)
-
+	// BIOSVersion
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`BIOSVersion`),
@@ -121,24 +117,23 @@ func GetBiosInfo(_ context.Context) (product, manufacturer, family, version stri
 		nil,
 		&bufLen,
 	)
-
 	if err != nil {
 		return
 	}
 
+	versionBuf := make([]uint16, bufLen/2+1)
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`BIOSVersion`),
 		nil,
 		&valType,
-		(*byte)(unsafe.Pointer(&regBuf[0])),
+		(*byte)(unsafe.Pointer(&versionBuf[0])),
 		&bufLen,
 	)
 	if err != nil {
 		return
 	}
-
-	version = windows.UTF16ToString(regBuf)
+	version = windows.UTF16ToString(versionBuf)
 
 	return product, manufacturer, family, version, nil
 }
