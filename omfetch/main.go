@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github/com/fischyn/omfetch/sys/bios"
@@ -12,39 +11,73 @@ import (
 	"github/com/fischyn/omfetch/sys/mem"
 )
 
-func main() {
-	// Only for testing  now
-	memoryInfo, _ := mem.GetMemoryInfo(context.Background())
-	memoryJSData, _ := json.Marshal(memoryInfo)
+const Logo = `
+           ▄▄▄▄▄
+        ▄█████████▄
+      ▄███▀▀▀▀▀▀▀███▄
+     ███▀          ▀███
+    ███              ███
+    ███              ███
+     ███▄          ▄███
+      ▀███▄▄▄▄▄▄▄███▀
+         ▀▀▀▀▀▀▀▀▀
+`
 
-	platform, family, version, displayVersion, _ := host.GetPlatformInfo(context.Background())
+const Logo2 = "       .------..\n" +
+	"     -          -\n" +
+	"   /              \\\n" +
+	" /                   \\\n" +
+	"/    .--._    .---.   |\n" +
+	"|  /      -__-     \\   |\n" +
+	"| |                 |  |\n" +
+	"||     ._   _.      ||\n" +
+	"||      o   o       ||\n" +
+	"||      _  |_      ||\n" +
+	"C|     (o\\_/o)     |O     Uhhh, this computer\n" +
+	" \\      _____      /       is like, busted or\n" +
+	"   \\ ( /#####\\ ) /       something. So go away.\n" +
+	"    \\  `====='  /\n" +
+	"     \\  -___-  /\n" +
+	"      |       |\n" +
+	"      /-_____-\\" + "\n" +
+	"    /           \\\n" +
+	"  /               \\\n" +
+	" /__|  AC / DC  |__\\\n" +
+	" | ||           |\\ \\"
+
+var (
+	blue  = "\033[34m"
+	green = "\033[32m"
+	reset = "\033[0m"
+)
+
+func PrintInfo(label string, value string) {
+	fmt.Printf("%s%-12s%s %s\n", green, label+":", reset, value)
+}
+
+func main() {
+	//test only lol
+
+	fmt.Println(blue + Logo2 + reset)
+
+	platform, family, platformVersion, displayVersion, _ := host.GetPlatformInfo(context.Background())
+	PrintInfo("OS", platform+" "+family+" "+platformVersion+" "+displayVersion)
 
 	cpuInfo, _ := cpu.GetCPUInfo(context.Background())
-	cpuJSData, _ := json.Marshal(cpuInfo)
+	c1 := cpuInfo[0]
+
+	PrintInfo("CPU", fmt.Sprintf("%s (%d) cores %f Mhz", c1.ModelName, c1.Cores, c1.Mhz))
+
+	memoryInfo, _ := mem.GetMemoryInfo(context.Background())
+
+	PrintInfo("RAM", fmt.Sprintf("%d MB", memoryInfo.Total/1024/1024))
+	PrintInfo("RAM(Used)", fmt.Sprintf("%d MB", memoryInfo.Used/1024/1024))
 
 	gpuInfo, _ := gpu.GetGPUInfo(context.Background())
-	gpuJSData, _ := json.Marshal(gpuInfo)
 
-	product, manufacturer, biosFamily, biosVersion, _ := bios.GetBiosInfo(context.Background())
+	PrintInfo("GPU", gpuInfo[0].GPUName)
 
-	fmt.Println("Memory")
-	fmt.Println(string(memoryJSData))
+	product, manufacturer, family, biosVersion, _ := bios.GetBiosInfo(context.Background())
 
-	fmt.Println("Platform")
-	fmt.Printf("Platfrom: %s\n", platform)
-	fmt.Printf("Family: %s\n", family)
-	fmt.Printf("version: %s\n", version)
-	fmt.Printf("displayVersion: %s\n", displayVersion)
-
-	fmt.Println("CPU")
-	fmt.Println(string(cpuJSData))
-
-	fmt.Println("GPU")
-	fmt.Println(string(gpuJSData))
-
-	fmt.Println("BIOS")
-	fmt.Printf("Product: %s\n", product)
-	fmt.Printf("Family: %s\n", biosFamily)
-	fmt.Printf("version: %s\n", biosVersion)
-	fmt.Printf("manufaturer: %s\n", manufacturer)
+	PrintInfo("BIOS", fmt.Sprintf("%s %s %s %s", manufacturer, family, product, biosVersion))
 }
