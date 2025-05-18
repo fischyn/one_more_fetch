@@ -6,7 +6,7 @@ import (
 	"context"
 	"unsafe"
 
-	"github/com/fischyn/omfetch/sys/dll"
+	"github/com/fischyn/omfetch/sys/windows/dll"
 
 	"golang.org/x/sys/windows"
 )

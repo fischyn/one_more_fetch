@@ -13,7 +13,7 @@ import (
 )
 
 func GetPlatformInfo(_ context.Context) (platform string, family string, version string, displayVersion string, err error) {
-	osInfo := windows.RtlGetVersion()
+	versionInfo := windows.RtlGetVersion()
 
 	var handler windows.Handle
 
@@ -58,7 +58,7 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 	}
 	platform = windows.UTF16ToString(regBuf)
 
-	if strings.Contains(platform, "Windows 10") { // check build number to determine whether it's actually Windows 11
+	if strings.Contains(platform, "Windows 10") {
 		err = windows.RegQueryValueEx(
 			handler,
 			windows.StringToUTF16Ptr(`CurrentBuildNumber`),
@@ -96,7 +96,7 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		&valType,
 		nil,
 		&bufLen,
-	) // append Service Pack number, only on success
+	)
 
 	if err == nil {
 		regBuf = make([]uint16, bufLen/2+1)
@@ -136,7 +136,6 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 		copy((*[4]byte)(unsafe.Pointer(&UBR))[:], regBuf)
 	}
 
-	// Get DisplayVersion(ex: 23H2) as platformVersion
 	err = windows.RegQueryValueEx(
 		handler,
 		windows.StringToUTF16Ptr(`DisplayVersion`),
@@ -160,15 +159,15 @@ func GetPlatformInfo(_ context.Context) (platform string, family string, version
 	}
 
 	version = fmt.Sprintf("%d.%d.%d.%d Build %d.%d",
-		osInfo.MajorVersion,
-		osInfo.MinorVersion,
-		osInfo.BuildNumber,
+		versionInfo.MajorVersion,
+		versionInfo.MinorVersion,
+		versionInfo.BuildNumber,
 		UBR,
-		osInfo.BuildNumber,
+		versionInfo.BuildNumber,
 		UBR,
 	)
 
-	switch osInfo.ProductType {
+	switch versionInfo.ProductType {
 	case 1:
 		family = "Standalone Workstation"
 	case 2:
