@@ -10,9 +10,10 @@ import (
 	"github.com/yusufpapurcu/wmi"
 )
 
+// https://learn.microsoft.com/ru-ru/windows/win32/cimwin32prov/win32-videocontroller
 type win32_VideoController struct {
 	Name           string
-	AdapterRAM     *uint64
+	AdapterRAM     *uint32
 	DriverVersion  string
 	VideoProcessor string
 }
@@ -26,7 +27,7 @@ func GetGPUInfo(ctx context.Context) ([]GPUInfo, error) {
 	}
 
 	for _, gpu := range dst {
-		memory := uint64(0)
+		memory := uint32(0)
 		if gpu.AdapterRAM != nil {
 			memory = *gpu.AdapterRAM
 		}
