@@ -1,6 +1,6 @@
 package ascii
 
-const Blinky = "       .------..\n" +
+const Beavis = "       .------..\n" +
 	"     -          -\n" +
 	"   /              \\\n" +
 	" /                   \\\n" +

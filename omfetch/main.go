@@ -68,7 +68,7 @@ func printBiosInfo(ctx context.Context) {
 }
 
 func main() {
-	fmt.Println(blue + ascii.Blinky + reset)
+	fmt.Println(blue + ascii.Beavis + reset)
 
 	ctx := context.Background()
 
