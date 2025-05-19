@@ -55,7 +55,7 @@ func printMemoryInfo(ctx context.Context) {
 
 func printGPUInfo(ctx context.Context) {
 	gpuInfo, err := gpu.GetGPUInfo(ctx)
-	if err == nil && len(gpuInfo) > 0 {
+	if err == nil && len(gpuInfo) == 1 {
 		PrintInfo("GPU", gpuInfo[0].GPUName)
 	}
 }
