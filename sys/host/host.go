@@ -10,10 +10,5 @@ var (
 )
 
 func GetHostname(_ context.Context) (string, error) {
-	hostname, err := getHostname()
-	if err != nil {
-		return "", err
-	}
-
-	return hostname, nil
+	return getHostname()
 }
