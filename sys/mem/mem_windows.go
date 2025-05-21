@@ -3,7 +3,6 @@
 package mem
 
 import (
-	"context"
 	"unsafe"
 
 	"github/com/fischyn/omfetch/sys/windows/dll"
@@ -27,7 +26,7 @@ type memoryStatusEx struct {
 	ullAvailExtendedVirtual uint64
 }
 
-func GetMemoryInfo(_ context.Context) (*MemoryInfo, error) {
+func GetMemoryInfo() (*MemoryInfo, error) {
 	var memStatEx memoryStatusEx
 	memStatEx.dwLength = uint32(unsafe.Sizeof(memStatEx))
 	mem, _, _ := globalMemoryStatusExProc.Call(uintptr(unsafe.Pointer(&memStatEx)))

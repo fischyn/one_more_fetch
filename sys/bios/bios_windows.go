@@ -3,13 +3,12 @@
 package bios
 
 import (
-	"context"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
 
-func GetBiosInfo(_ context.Context) (product, manufacturer, family, version string, err error) {
+func GetBiosInfo() (product, manufacturer, family, version string, err error) {
 	var handler windows.Handle
 
 	err = windows.RegOpenKeyEx(

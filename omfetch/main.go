@@ -36,22 +36,22 @@ func formatResolution(horizontal uint32, vertical uint32) string {
 	return fmt.Sprintf("%dx%d", horizontal, vertical)
 }
 
-func printHostname(ctx context.Context) {
-	hostname, err := host.GetHostname(ctx)
+func printHostname() {
+	hostname, err := host.GetHostname()
 	if err == nil {
 		printInfo("Hostname", hostname)
 	}
 }
 
-func printUserInfo(ctx context.Context) {
-	user, err := user.GetUserInfo(ctx)
+func printUserInfo() {
+	user, err := user.GetUserInfo()
 	if err == nil {
 		printInfo("User", user.Username)
 	}
 }
 
-func printPlatformInfo(ctx context.Context) {
-	platform, family, version, displayVersion, err := platform.GetPlatformInfo(ctx)
+func printPlatformInfo() {
+	platform, family, version, displayVersion, err := platform.GetPlatformInfo()
 	if err == nil {
 		printInfo("OS", fmt.Sprintf("%s %s %s %s", platform, family, version, displayVersion))
 	}
@@ -65,8 +65,8 @@ func printCPUInfo(ctx context.Context) {
 	}
 }
 
-func printMemoryInfo(ctx context.Context) {
-	memInfo, err := mem.GetMemoryInfo(ctx)
+func printMemoryInfo() {
+	memInfo, err := mem.GetMemoryInfo()
 	if err == nil {
 		printInfo("RAM", formatMB(memInfo.Total))
 		printInfo("RAM(Used)", formatMB(memInfo.Used))
@@ -83,8 +83,8 @@ func printGPUInfo(ctx context.Context) {
 	}
 }
 
-func printBiosInfo(ctx context.Context) {
-	product, manufacturer, family, version, err := bios.GetBiosInfo(ctx)
+func printBiosInfo() {
+	product, manufacturer, family, version, err := bios.GetBiosInfo()
 	if err == nil {
 		printInfo("BIOS", fmt.Sprintf("%s %s %s %s", manufacturer, family, product, version))
 	}
@@ -95,11 +95,11 @@ func main() {
 
 	ctx := context.Background()
 
-	printUserInfo(ctx)
-	printHostname(ctx)
-	printPlatformInfo(ctx)
+	printUserInfo()
+	printHostname()
+	printPlatformInfo()
 	printCPUInfo(ctx)
-	printMemoryInfo(ctx)
+	printMemoryInfo()
 	printGPUInfo(ctx)
-	printBiosInfo(ctx)
+	printBiosInfo()
 }

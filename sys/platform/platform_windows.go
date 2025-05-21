@@ -3,7 +3,6 @@
 package platform
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,7 +11,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func GetPlatformInfo(_ context.Context) (platform string, family string, version string, displayVersion string, err error) {
+func GetPlatformInfo() (platform string, family string, version string, displayVersion string, err error) {
 	versionInfo := windows.RtlGetVersion()
 
 	var handler windows.Handle
