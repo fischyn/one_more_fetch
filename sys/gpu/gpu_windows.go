@@ -5,7 +5,7 @@ package gpu
 import (
 	"context"
 
-	"github/com/fischyn/omfetch/sys/windows/wql"
+	"github.com/fischyn/omfetch/sys/windows/wql"
 
 	"github.com/yusufpapurcu/wmi"
 )

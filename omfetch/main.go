@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github/com/fischyn/omfetch/img/ascii"
-	"github/com/fischyn/omfetch/sys/bios"
-	"github/com/fischyn/omfetch/sys/cpu"
-	"github/com/fischyn/omfetch/sys/gpu"
-	"github/com/fischyn/omfetch/sys/host"
-	"github/com/fischyn/omfetch/sys/mem"
-	"github/com/fischyn/omfetch/sys/platform"
-	"github/com/fischyn/omfetch/sys/user"
+	"github.com/fischyn/omfetch/img/ascii"
+	"github.com/fischyn/omfetch/sys/bios"
+	"github.com/fischyn/omfetch/sys/cpu"
+	"github.com/fischyn/omfetch/sys/gpu"
+	"github.com/fischyn/omfetch/sys/host"
+	"github.com/fischyn/omfetch/sys/mem"
+	"github.com/fischyn/omfetch/sys/platform"
+	"github.com/fischyn/omfetch/sys/user"
 )
 
 var (
@@ -95,11 +96,35 @@ func main() {
 
 	ctx := context.Background()
 
+	start := time.Now()
+
+	// startFetchUserInfo := time.Now()
 	printUserInfo()
+	// fmt.Println("Time since fetching user info:", time.Since(startFetchUserInfo))
+
+	// startFetchHostname := time.Now()
 	printHostname()
+	// fmt.Println("Time since fetching hostname:", time.Since(startFetchHostname))
+
+	// startFetchPlatformInfo := time.Now()
 	printPlatformInfo()
+	// fmt.Println("Time since fetching platform info:", time.Since(startFetchPlatformInfo))
+
+	// startFetchCpuInfo := time.Now()
 	printCPUInfo(ctx)
+	// fmt.Println("Time since fetching cpu info:", time.Since(startFetchCpuInfo))
+
+	// startFetchMemoryInfo := time.Now()
 	printMemoryInfo()
+	// fmt.Println("Time since fetching mem info:", time.Since(startFetchMemoryInfo))
+
+	// startFetchGpuInfo := time.Now()
 	printGPUInfo(ctx)
+	// fmt.Println("Time since fetching gpu info:", time.Since(startFetchGpuInfo))
+
+	// startFetchBiosInfo := time.Now()
 	printBiosInfo()
+	// fmt.Println("Time since fetching bios info:", time.Since(startFetchBiosInfo))
+
+	fmt.Println("Total execution time:", time.Since(start))
 }

@@ -6,7 +6,7 @@ import (
 	"context"
 	"strconv"
 
-	"github/com/fischyn/omfetch/sys/windows/wql"
+	"github.com/fischyn/omfetch/sys/windows/wql"
 
 	"github.com/yusufpapurcu/wmi"
 )
