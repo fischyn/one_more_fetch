@@ -84,6 +84,16 @@ func printGPUInfo(ctx context.Context) {
 	}
 }
 
+func printCPUCoresInfo() {
+	var cp cpu.CPUResult
+
+	err := cpu.GetNCores(&cp)
+	if err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
+	}
+	printInfo("CPU(Cores)", fmt.Sprintf("Phys cores: %d, Log cores: %d, Active cores: %d, Package :%d", cp.CoresPhysical, cp.CoresLogical, cp.CoresActive, cp.Packages))
+}
+
 func printBiosInfo() {
 	product, manufacturer, family, version, err := bios.GetBiosInfo()
 	if err == nil {
@@ -94,7 +104,7 @@ func printBiosInfo() {
 func main() {
 	fmt.Println(blue + ascii.Beavis + reset)
 
-	ctx := context.Background()
+	// ctx := context.Background()
 
 	start := time.Now()
 
@@ -111,15 +121,19 @@ func main() {
 	// fmt.Println("Time since fetching platform info:", time.Since(startFetchPlatformInfo))
 
 	// startFetchCpuInfo := time.Now()
-	printCPUInfo(ctx)
+	// printCPUInfo(ctx)
 	// fmt.Println("Time since fetching cpu info:", time.Since(startFetchCpuInfo))
+
+	// startFetchCpuCoresInfo := time.Now()
+	printCPUCoresInfo()
+	// fmt.Println("Time since fetching cpu cores info:", time.Since(startFetchCpuCoresInfo))
 
 	// startFetchMemoryInfo := time.Now()
 	printMemoryInfo()
 	// fmt.Println("Time since fetching mem info:", time.Since(startFetchMemoryInfo))
 
 	// startFetchGpuInfo := time.Now()
-	printGPUInfo(ctx)
+	// printGPUInfo(ctx)
 	// fmt.Println("Time since fetching gpu info:", time.Since(startFetchGpuInfo))
 
 	// startFetchBiosInfo := time.Now()

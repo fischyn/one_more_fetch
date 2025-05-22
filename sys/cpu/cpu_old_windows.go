@@ -22,6 +22,7 @@ type win32_Processor struct {
 	MaxClockSpeed             uint32
 }
 
+// Deprecated
 func GetCPUInfo(ctx context.Context) ([]CPUInfo, error) {
 	var ret []CPUInfo
 	var dst []win32_Processor

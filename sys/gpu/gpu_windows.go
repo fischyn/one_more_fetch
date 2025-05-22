@@ -20,6 +20,7 @@ type win32_VideoController struct {
 	CurrentVerticalResolution   *uint32
 }
 
+// Deprecated
 func GetGPUInfo(ctx context.Context) ([]GPUInfo, error) {
 	var ret []GPUInfo
 	var dst []win32_VideoController

@@ -15,3 +15,10 @@ type CPUInfo struct {
 	Flags      []string `json:"flags"`
 	Microcode  string   `json:"microcode"`
 }
+
+type CPUResult struct {
+	CoresPhysical uint16
+	CoresLogical  uint16
+	CoresActive   uint16
+	Packages      uint16
+}
