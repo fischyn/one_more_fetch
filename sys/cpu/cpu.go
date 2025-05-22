@@ -17,6 +17,10 @@ type CPUInfo struct {
 }
 
 type CPUResult struct {
+	ProcessorName string
+	Vendor        string
+	Identifier    string
+	Mhz           uint32
 	CoresPhysical uint16
 	CoresLogical  uint16
 	CoresActive   uint16

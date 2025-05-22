@@ -88,9 +88,18 @@ func printCPUCoresInfo() {
 	var cp cpu.CPUResult
 
 	err := cpu.GetNCores(&cp)
+
 	if err != nil {
 		fmt.Printf("err.Error(): %v\n", err.Error())
 	}
+
+	err = cpu.GetRegistryData(&cp)
+
+	if err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
+	}
+
+	printInfo("CPU", fmt.Sprintf("%s %s %s %d MHz", cp.ProcessorName, cp.Vendor, cp.Identifier, cp.Mhz))
 	printInfo("CPU(Cores)", fmt.Sprintf("Phys cores: %d, Log cores: %d, Active cores: %d, Package :%d", cp.CoresPhysical, cp.CoresLogical, cp.CoresActive, cp.Packages))
 }
 
@@ -102,7 +111,9 @@ func printBiosInfo() {
 }
 
 func main() {
+	// startAsciiRender := time.Now()
 	fmt.Println(blue + ascii.Beavis + reset)
+	// fmt.Println("Time since render ascii", time.Since(startAsciiRender))
 
 	// ctx := context.Background()
 
@@ -140,5 +151,5 @@ func main() {
 	printBiosInfo()
 	// fmt.Println("Time since fetching bios info:", time.Since(startFetchBiosInfo))
 
-	fmt.Println("Total execution time:", time.Since(start))
+	printInfo("Execution time", time.Since(start).String())
 }

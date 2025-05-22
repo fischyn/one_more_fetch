@@ -6,6 +6,9 @@ import (
 	"unsafe"
 
 	"github.com/fischyn/omfetch/sys/windows/dll"
+	"github.com/fischyn/omfetch/sys/windows/registry"
+
+	"golang.org/x/sys/windows"
 )
 
 // https://learn.microsoft.com/ru-ru/windows/win32/api/winnt/ne-winnt-logical_processor_relationship
@@ -136,5 +139,63 @@ func GetNCores(cpu *CPUResult) error {
 
 		offset += uintptr(info.Size)
 	}
+	return nil
+}
+
+func GetRegistryData(cpu *CPUResult) error {
+	var key windows.Handle
+
+	sKey, err := windows.UTF16PtrFromString(`HARDWARE\DESCRIPTION\System\CentralProcessor\0`)
+
+	if err != nil {
+		return err
+	}
+
+	err = windows.RegOpenKeyEx(
+		windows.HKEY_LOCAL_MACHINE,
+		sKey,
+		0,
+		windows.KEY_READ|windows.KEY_WOW64_64KEY,
+		&key,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer windows.RegCloseKey(key)
+
+	p, err := registry.ReadRegSZ(key, `ProcessorNameString`)
+
+	if err != nil {
+		return err
+	}
+
+	cpu.ProcessorName = windows.UTF16ToString(p)
+
+	v, err := registry.ReadRegSZ(key, `VendorIdentifier`)
+
+	if err != nil {
+		return err
+	}
+
+	cpu.Vendor = windows.UTF16ToString(v)
+
+	i, err := registry.ReadRegSZ(key, `Identifier`)
+
+	if err != nil {
+		return err
+	}
+
+	cpu.Identifier = windows.UTF16ToString(i)
+
+	mhz, err := registry.ReadRegDWORD(key, `~MHz`)
+
+	if err != nil {
+		return err
+	}
+
+	cpu.Mhz = mhz
+
 	return nil
 }
