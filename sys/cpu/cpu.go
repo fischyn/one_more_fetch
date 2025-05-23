@@ -1,5 +1,6 @@
 package cpu
 
+//Deprecated
 type CPUInfo struct {
 	CPU        int32    `json:"cpu"`
 	VendorID   string   `json:"vendorId"`
@@ -17,14 +18,12 @@ type CPUInfo struct {
 }
 
 type CPUResult struct {
-	ProcessorName string // 2
-	Vendor        string // 2
-	Identifier    string // 2
-	Mhz           uint32 // 4
-	CoresPhysical uint16 // 2
-	CoresLogical  uint16 // 2
-	CoresActive   uint16 // 2
-	Packages      uint16 // 2
+	ProcessorName string `json:"processorName"`
+	Vendor        string `json:"vendor"`
+	Identifier    string `json:"identifier"`
+	Mhz           uint32 `json:"mhz"`
+	CoresPhysical uint16 `json:"coresPhysical"`
+	CoresLogical  uint16 `json:"coresLogical"`
+	CoresActive   uint16 `json:"coresActive"`
+	Packages      uint16 `json:"packages"`
 }
-
-// 18 bytes

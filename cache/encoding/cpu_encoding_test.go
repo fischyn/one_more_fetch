@@ -21,7 +21,7 @@ func TestMarshalUnmarshalCPU(t *testing.T) {
 		Packages:      1,
 	}
 
-	data, err := encoding.MarshalCPU(&original)
+	data, err := encoding.MarshalCPUBinary(&original)
 
 	if err != nil {
 		t.Fatalf("MarshalCPU failed: %v", err)
@@ -59,7 +59,7 @@ func TestMarshalUnmarshalCPU(t *testing.T) {
 	}
 
 	//Check if Marshal -> Unmarshal is idenpotent operation
-	data2, err := encoding.MarshalCPU(&result)
+	data2, err := encoding.MarshalCPUBinary(&result)
 
 	if err != nil {
 		t.Fatalf("MarshalCPU failed second time: %v", err)
@@ -83,7 +83,7 @@ var sampleCPU = cpu.CPUResult{
 
 func BenchmarkMarshalCPU(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := encoding.MarshalCPU(&sampleCPU)
+		_, err := encoding.MarshalCPUBinary(&sampleCPU)
 		if err != nil {
 			b.Fatalf("MarshalCPU failed: %v", err)
 		}
@@ -91,12 +91,12 @@ func BenchmarkMarshalCPU(b *testing.B) {
 }
 
 func BenchmarkUnmarshalCPU(b *testing.B) {
-	data, err := encoding.MarshalCPU(&sampleCPU)
+	data, err := encoding.MarshalCPUBinary(&sampleCPU)
 	if err != nil {
 		b.Fatalf("MarshalCPU failed: %v", err)
 	}
 
-	b.ResetTimer() // скидати таймер після підготовки
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		_, err := encoding.UnMarshalCPU(data)

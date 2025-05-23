@@ -3,14 +3,16 @@ package encoding
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 
 	"github.com/fischyn/omfetch/sys/cpu"
 )
 
-type CPURS_FIELD uint8
+type FIELD uint8
 
 const (
-	PROCESSOR_NAME CPURS_FIELD = iota
+	//CPU fields
+	PROCESSOR_NAME FIELD = iota
 	VENDOR
 	IDENTIFIER
 	MHZ
@@ -27,13 +29,22 @@ func UnMarshalCPU(data []byte) (cpu.CPUResult, error) {
 	offset := 0
 
 	for offset < len(data) {
-		field := CPURS_FIELD(data[offset])
+
+		if offset+3 > len(data) {
+			return ret, fmt.Errorf("unexpected end of data at position %d", offset)
+		}
+
+		field := FIELD(data[offset])
 
 		offset++
 
 		fieldLen := binary.LittleEndian.Uint16(data[offset : offset+2])
 
 		offset += 2
+
+		if offset+int(fieldLen) > len(data) {
+			return ret, fmt.Errorf("not enough data for field %d", field)
+		}
 
 		value := data[offset : offset+int(fieldLen)]
 
@@ -47,22 +58,39 @@ func UnMarshalCPU(data []byte) (cpu.CPUResult, error) {
 		case IDENTIFIER:
 			ret.Identifier = string(value)
 		case MHZ:
+			if len(value) != 4 {
+				return ret, fmt.Errorf("invalid length for MHZ")
+			}
 			ret.Mhz = binary.LittleEndian.Uint32(value)
 		case CORES_PHYSICAL:
+			if len(value) != 2 {
+				return ret, fmt.Errorf("invalid length for CORES_PHYSICAL")
+			}
 			ret.CoresPhysical = binary.LittleEndian.Uint16(value)
 		case CORES_LOGICAL:
+			if len(value) != 2 {
+				return ret, fmt.Errorf("invalid length for CORES_LOGICAL")
+			}
 			ret.CoresLogical = binary.LittleEndian.Uint16(value)
 		case CORES_ACTIVE:
+			if len(value) != 2 {
+				return ret, fmt.Errorf("invalid length for CORES_ACTIVE")
+			}
 			ret.CoresActive = binary.LittleEndian.Uint16(value)
 		case PACKAGES:
+			if len(value) != 2 {
+				return ret, fmt.Errorf("invalid length for PACKAGES")
+			}
 			ret.Packages = binary.LittleEndian.Uint16(value)
+		default:
+			return ret, fmt.Errorf("unknown field id %d", field)
 		}
 	}
 
 	return ret, nil
 }
 
-func MarshalCPU(c *cpu.CPUResult) ([]byte, error) {
+func MarshalCPUBinary(c *cpu.CPUResult) ([]byte, error) {
 	var buf bytes.Buffer
 
 	writeFiled(PROCESSOR_NAME, []byte(c.ProcessorName), &buf)
@@ -89,7 +117,7 @@ func MarshalCPU(c *cpu.CPUResult) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func writeFiled(field CPURS_FIELD, data []byte, buf *bytes.Buffer) {
+func writeFiled(field FIELD, data []byte, buf *bytes.Buffer) {
 	// 1 b for field name + 2 byte for fieldValue length + n bytes for data
 	//0 +----+--------+---------------+ N
 	//  name + fLen   + data          +

@@ -4,10 +4,10 @@ import (
 	"os"
 )
 
-const ReadOnlyPerm = 0444
+const ReadOnly = 0444
 
 func SaveCPUCache(filename string, data []byte) error {
-	return os.WriteFile(filename, data, ReadOnlyPerm)
+	return os.WriteFile(filename, data, ReadOnly)
 }
 
 func LoadCPUCache(filename string) ([]byte, error) {

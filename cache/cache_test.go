@@ -31,7 +31,7 @@ func TestSaveLoadCPUCache(t *testing.T) {
 		t.Fatalf("Failed to stat file: %v", err)
 	}
 	mode := info.Mode().Perm()
-	if mode != cache.ReadOnlyPerm {
-		t.Errorf("File permission mismatch: got %v, want %v", mode, cache.ReadOnlyPerm)
+	if mode != cache.ReadOnly {
+		t.Errorf("File permission mismatch: got %v, want %v", mode, cache.ReadOnly)
 	}
 }
