@@ -1,10 +1,10 @@
 package gpu
 
-type GPUInfo struct {
-	GPUName                     string `json:"name"`
-	MemoryBytes                 uint32 `json:"memory"`
-	DriverVersion               string `json:"driverVersion"`
-	VideoProcessor              string `json:"videoProcessor"`
-	CurrentHorizontalResolution uint32 `json:"horizontalResolution"`
-	CurrentVerticalResolution   uint32 `json:"verticalResolution"`
+type GPUResult struct {
+	Name string `json:"name"`
+}
+
+type Resolution struct {
+	Horizontal int `json:"horizontal"`
+	Vertical   int `json:"vertical"`
 }

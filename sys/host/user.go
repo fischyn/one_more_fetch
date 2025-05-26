@@ -1,4 +1,4 @@
-package user
+package host
 
 import (
 	"os/user"
@@ -8,6 +8,6 @@ var (
 	getUser = user.Current
 )
 
-func GetUserInfo() (*user.User, error) {
+func GetUser() (*user.User, error) {
 	return getUser()
 }

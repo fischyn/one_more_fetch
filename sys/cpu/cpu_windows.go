@@ -14,8 +14,6 @@ import (
 // https://learn.microsoft.com/ru-ru/windows/win32/api/winnt/ne-winnt-logical_processor_relationship
 type LOGICAL_PROCESSOR_RELATIONSHIP = uint16
 
-// Constants defining types of processor relationships.
-// These correspond to the Windows API GetLogicalProcessorInformationEx constants.
 const (
 	RelationProcessorCore    LOGICAL_PROCESSOR_RELATIONSHIP = 0
 	RelationProcessorPackage LOGICAL_PROCESSOR_RELATIONSHIP = 3
@@ -23,32 +21,18 @@ const (
 	RelationAll              LOGICAL_PROCESSOR_RELATIONSHIP = 0xffff
 )
 
-// SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX represents the Windows SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX structure.
-//
-// This structure describes information about logical processors and their relationships.
-//
-// Fields:
-// - Relationship: The type of relationship (core, package, group, etc.).
-// - Size: Size in bytes of the entire structure including the variable-sized Data field.
-// - Data: Placeholder for variable-sized data. The actual content depends on Relationship type.
 type SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX struct {
 	Relationship uint16
 	Size         uint32
 	Data         [1]byte // super-duper hack?
 }
 
-// GROUP_RELATIONSHIP represents processor group information.
-//
-// According to MSDN, this structure is followed immediately in memory
-// by an array of PROCESSOR_GROUP_INFO structs, describing each group.
 type GROUP_RELATIONSHIP struct {
 	MaximumGroupCount uint16
 	ActiveGroupCount  uint16
 	Reserved          [20]byte
-	// Note: In C, following this struct directly in memory is an array of PROCESSOR_GROUP_INFO structs.
 }
 
-// PROCESSOR_GROUP_INFO represents information about one processor group.
 type PROCESSOR_GROUP_INFO struct {
 	MaximumProcessorCount uint8
 	ActiveProcessorCount  uint8
@@ -165,29 +149,29 @@ func GetRegistryData(cpu *CPUResult) error {
 
 	defer windows.RegCloseKey(key)
 
-	p, err := registry.ReadRegSZ(key, `ProcessorNameString`)
+	processName, err := registry.ReadRegSZ(key, `ProcessorNameString`)
 
 	if err != nil {
 		return err
 	}
 
-	cpu.ProcessorName = windows.UTF16ToString(p)
+	cpu.ProcessorName = windows.UTF16ToString(processName)
 
-	v, err := registry.ReadRegSZ(key, `VendorIdentifier`)
-
-	if err != nil {
-		return err
-	}
-
-	cpu.Vendor = windows.UTF16ToString(v)
-
-	i, err := registry.ReadRegSZ(key, `Identifier`)
+	vendor, err := registry.ReadRegSZ(key, `VendorIdentifier`)
 
 	if err != nil {
 		return err
 	}
 
-	cpu.Identifier = windows.UTF16ToString(i)
+	cpu.Vendor = windows.UTF16ToString(vendor)
+
+	identifier, err := registry.ReadRegSZ(key, `Identifier`)
+
+	if err != nil {
+		return err
+	}
+
+	cpu.Identifier = windows.UTF16ToString(identifier)
 
 	mhz, err := registry.ReadRegDWORD(key, `~MHz`)
 

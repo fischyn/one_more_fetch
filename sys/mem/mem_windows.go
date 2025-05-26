@@ -26,22 +26,21 @@ type memoryStatusEx struct {
 	ullAvailExtendedVirtual uint64
 }
 
-func GetMemoryInfo() (*MemoryInfo, error) {
+func GetMemory(m *MemoryResult) error {
+
 	var memStatEx memoryStatusEx
 	memStatEx.dwLength = uint32(unsafe.Sizeof(memStatEx))
 	mem, _, _ := globalMemoryStatusExProc.Call(uintptr(unsafe.Pointer(&memStatEx)))
 
 	if mem == 0 {
-		return nil, windows.GetLastError()
+		return windows.GetLastError()
 	}
 
-	ret := &MemoryInfo{
-		Total:       memStatEx.ullTotalPhys,
-		Avail:       memStatEx.ullAvailPhys,
-		UsedPercent: float64(memStatEx.dwMemoryLoad),
-	}
+	m.Total = memStatEx.ullTotalPhys
+	m.Avail = memStatEx.ullAvailPhys
+	m.UsedPercent = float64(memStatEx.dwMemoryLoad)
 
-	ret.Used = ret.Total - ret.Avail
+	m.Used = m.Total - m.Avail
 
-	return ret, nil
+	return nil
 }

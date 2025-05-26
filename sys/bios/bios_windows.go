@@ -3,136 +3,106 @@
 package bios
 
 import (
-	"unsafe"
-
+	"github.com/fischyn/omfetch/sys/windows/registry"
 	"golang.org/x/sys/windows"
 )
 
-func GetBiosInfo() (product, manufacturer, family, version string, err error) {
-	var handler windows.Handle
+func GetBIOS(bIOS *BIOSResult, opt BIOSOptions) error {
+	var key windows.Handle
 
-	err = windows.RegOpenKeyEx(
+	err := windows.RegOpenKeyEx(
 		windows.HKEY_LOCAL_MACHINE,
 		windows.StringToUTF16Ptr(`HARDWARE\DESCRIPTION\System\BIOS`),
 		0,
 		windows.KEY_READ|windows.KEY_WOW64_64KEY,
-		&handler,
+		&key,
 	)
-	if err != nil {
-		return
-	}
-	defer windows.RegCloseKey(handler)
 
-	var bufLen uint32
-	var valType uint32
-
-	// SystemProductName
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemProductName`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
 	if err != nil {
-		return
+		return err
 	}
 
-	productBuf := make([]uint16, bufLen/2+1)
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemProductName`),
-		nil,
-		&valType,
-		(*byte)(unsafe.Pointer(&productBuf[0])),
-		&bufLen,
-	)
-	if err != nil {
-		return
-	}
-	product = windows.UTF16ToString(productBuf)
+	defer windows.RegCloseKey(key)
 
-	// SystemManufacturer
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemManufacturer`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
-	if err != nil {
-		return
+	if opt.ShowSystemProduct {
+		systemProduct, err := registry.ReadRegSZ(key, `SystemProductName`)
+		if err != nil {
+			return err
+		}
+		bIOS.SystemProduct = windows.UTF16ToString(systemProduct)
 	}
 
-	manufacturerBuf := make([]uint16, bufLen/2+1)
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemManufacturer`),
-		nil,
-		&valType,
-		(*byte)(unsafe.Pointer(&manufacturerBuf[0])),
-		&bufLen,
-	)
-	if err != nil {
-		return
-	}
-	manufacturer = windows.UTF16ToString(manufacturerBuf)
-
-	// SystemFamily
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemFamily`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
-	if err != nil {
-		return
+	if opt.ShowSystemManufacturer {
+		systemManufacturer, err := registry.ReadRegSZ(key, `SystemManufacturer`)
+		if err != nil {
+			return err
+		}
+		bIOS.SystemManufacturer = windows.UTF16ToString(systemManufacturer)
 	}
 
-	familyBuf := make([]uint16, bufLen/2+1)
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`SystemFamily`),
-		nil,
-		&valType,
-		(*byte)(unsafe.Pointer(&familyBuf[0])),
-		&bufLen,
-	)
-	if err != nil {
-		return
-	}
-	family = windows.UTF16ToString(familyBuf)
-
-	// BIOSVersion
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`BIOSVersion`),
-		nil,
-		&valType,
-		nil,
-		&bufLen,
-	)
-	if err != nil {
-		return
+	if opt.ShowSystemFamily {
+		systemFamily, err := registry.ReadRegSZ(key, `SystemFamily`)
+		if err != nil {
+			return err
+		}
+		bIOS.SystemFamily = windows.UTF16ToString(systemFamily)
 	}
 
-	versionBuf := make([]uint16, bufLen/2+1)
-	err = windows.RegQueryValueEx(
-		handler,
-		windows.StringToUTF16Ptr(`BIOSVersion`),
-		nil,
-		&valType,
-		(*byte)(unsafe.Pointer(&versionBuf[0])),
-		&bufLen,
-	)
-	if err != nil {
-		return
+	if opt.ShowSystemVersion {
+		systemVersion, err := registry.ReadRegSZ(key, `SystemVersion`)
+		if err != nil {
+			return err
+		}
+		bIOS.SystemVersion = windows.UTF16ToString(systemVersion)
 	}
-	version = windows.UTF16ToString(versionBuf)
 
-	return product, manufacturer, family, version, nil
+	if opt.ShowBiosVendor {
+		biosVendor, err := registry.ReadRegSZ(key, `BIOSVendor`)
+		if err != nil {
+			return err
+		}
+		bIOS.BiosVendor = windows.UTF16ToString(biosVendor)
+	}
+
+	if opt.ShowBiosVersion {
+		biosVersion, err := registry.ReadRegSZ(key, `BIOSVersion`)
+		if err != nil {
+			return err
+		}
+		bIOS.BiosVersion = windows.UTF16ToString(biosVersion)
+	}
+
+	if opt.ShowBiosReleaseDate {
+		biosReleaseDate, err := registry.ReadRegSZ(key, `BIOSReleaseDate`)
+		if err != nil {
+			return err
+		}
+		bIOS.BiosReleaseDate = windows.UTF16ToString(biosReleaseDate)
+	}
+
+	if opt.ShowBaseBoardManufacturer {
+		baseBoardManufacturer, err := registry.ReadRegSZ(key, `BaseBoardManufacturer`)
+		if err != nil {
+			return err
+		}
+		bIOS.BaseBoardManufacturer = windows.UTF16ToString(baseBoardManufacturer)
+	}
+
+	if opt.ShowBaseBoardProduct {
+		baseBoardProduct, err := registry.ReadRegSZ(key, `BaseBoardProduct`)
+		if err != nil {
+			return err
+		}
+		bIOS.BaseBoardProduct = windows.UTF16ToString(baseBoardProduct)
+	}
+
+	if opt.ShowBaseBoardVersion {
+		baseBoardVersion, err := registry.ReadRegSZ(key, `BaseBoardVersion`)
+		if err != nil {
+			return err
+		}
+		bIOS.BaseBoardVersion = windows.UTF16ToString(baseBoardVersion)
+	}
+
+	return nil
 }

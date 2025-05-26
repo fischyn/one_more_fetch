@@ -5,7 +5,7 @@ import (
 
 	"bytes"
 
-	"github.com/fischyn/omfetch/cache/encoding"
+	"github.com/fischyn/omfetch/encoding"
 	"github.com/fischyn/omfetch/sys/cpu"
 )
 
