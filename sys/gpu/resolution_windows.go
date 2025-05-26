@@ -12,7 +12,17 @@ const (
 	SM_CYSCREEN int = 1
 )
 
-var getSystemMetricsProc = dll.User32.NewProc("GetSystemMetrics")
+var (
+	getSystemMetricsProc = dll.User32.NewProc("GetSystemMetrics")
+	setProcessDPIAware   = dll.User32.NewProc("SetProcessDPIAware")
+)
+
+// This prevents Windows from scaling DPI for the application,
+// allowing functions like GetSystemMetrics to return the
+// true physical screen resolution instead of scaled values.
+func init() {
+	setProcessDPIAware.Call()
+}
 
 func GetResolution(resn *Resolution) error {
 

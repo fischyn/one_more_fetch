@@ -1,11 +1,13 @@
+//go:build windows
+
 package gpu
 
 import (
 	"unsafe"
 
 	"github.com/fischyn/omfetch/sys/windows/dll"
+	"github.com/fischyn/omfetch/sys/windows/registry"
 
-	// "github.com/fischyn/omfetch/sys/windows/registry"
 	"golang.org/x/sys/windows"
 )
 
@@ -45,9 +47,11 @@ type SP_DEVINFO_DATA struct {
 
 func GetGPUsInfo(gpus *[]GPUResult) error {
 	devInfoSet, err := getDisplayDeviceInfoSet()
+
 	if err != nil {
 		return err
 	}
+
 	defer windows.SetupDiDestroyDeviceInfoList(windows.DevInfo(devInfoSet))
 
 	devices, err := setupDiEnumDeviceInfo(devInfoSet)
@@ -63,16 +67,94 @@ func GetGPUsInfo(gpus *[]GPUResult) error {
 			continue
 		}
 
-		defer windows.RegCloseKey(regKey)
+		// defer windows.RegCloseKey(regKey)
 
-		// version, _ := registry.ReadRegSZ(regKey, `VideoID`)
+		videoId, _ := registry.ReadRegSZ(regKey, `VideoID`)
 
-		//TODO read from "SOFTWARE\Microsoft\DirectX\" regisry
-		//TODO read from "SYSTEM\CurrentControlSet\Control\Class\"
+		windows.RegCloseKey(regKey)
+
+		var regKeyDirectX windows.Handle
+
+		subKey := `SOFTWARE\Microsoft\DirectX\` + windows.UTF16ToString(videoId)
+
+		err = windows.RegOpenKeyEx(
+			windows.HKEY_LOCAL_MACHINE,
+			windows.StringToUTF16Ptr(subKey),
+			0,
+			windows.KEY_READ|windows.KEY_WOW64_64KEY,
+			&regKeyDirectX,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		// defer windows.RegCloseKey(regKeyDirectX)
+
+		vendor, err := registry.ReadRegDWORD(regKeyDirectX, `VendorId`)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		videoMemory, err := registry.ReadRegQWORD(regKeyDirectX, `DedicatedVideoMemory`)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		md3d11FeatLvl, err := registry.ReadRegDWORD(regKeyDirectX, `MaxD3D11FeatureLevel`)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		md3d11FeatLvlStr, err := DecodeD3FeatureLevel(md3d11FeatLvl)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		md3d12FeatLvl, err := registry.ReadRegDWORD(regKeyDirectX, `MaxD3D12FeatureLevel`)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		md3d12FeatLvlStr, err := DecodeD3D12FeatureLevel(md3d12FeatLvl)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		driverVersion, err := registry.ReadRegQWORD(regKeyDirectX, `DriverVersion`)
+
+		if err != nil {
+			windows.RegCloseKey(regKeyDirectX)
+			return err
+		}
+
+		windows.RegCloseKey(regKeyDirectX)
 
 		info := GPUResult{
-			Name: name,
+			Name:   name,
+			Vendor: DefineGPUVendor(vendor),
+			VideoMemory: VideoMemory{
+				Bytes:  videoMemory,
+				MBytes: uint32(videoMemory / (1024 * 1024)),
+				GBytes: uint16(videoMemory / (1024 * 1024 * 1024)),
+			},
+			MaxD3D11FeatureLevel: md3d11FeatLvlStr,
+			MaxD3D12FeatureLevel: md3d12FeatLvlStr,
+			DriverVersion:        DecodeDriverVersion(driverVersion),
 		}
+
 		*gpus = append(*gpus, info)
 	}
 

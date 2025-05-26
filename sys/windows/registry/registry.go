@@ -107,3 +107,50 @@ func ReadRegDWORD(key windows.Handle, name string) (uint32, error) {
 
 	return val, nil
 }
+
+func ReadRegQWORD(key windows.Handle, name string) (uint64, error) {
+	namePtr, err := windows.UTF16PtrFromString(name)
+	if err != nil {
+		return 0, err
+	}
+
+	var bufLen uint32
+	var valType uint32
+
+	err = windows.RegQueryValueEx(
+		key,
+		namePtr,
+		nil,
+		&valType,
+		nil,
+		&bufLen,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	if valType != windows.REG_QWORD {
+		return 0, fmt.Errorf("unexpected registry value type for %s: %d", name, valType)
+	}
+
+	if bufLen < 8 {
+		return 0, fmt.Errorf("buffer too small for REG_QWORD")
+	}
+
+	buf := make([]byte, bufLen)
+
+	err = windows.RegQueryValueEx(
+		key,
+		namePtr,
+		nil,
+		&valType,
+		&buf[0],
+		&bufLen,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	val := binary.LittleEndian.Uint64(buf[:8])
+	return val, nil
+}
