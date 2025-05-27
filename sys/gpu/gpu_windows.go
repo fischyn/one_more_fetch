@@ -3,10 +3,11 @@
 package gpu
 
 import (
+	"os"
 	"unsafe"
 
-	"github.com/fischyn/omfetch/sys/windows/dll"
-	"github.com/fischyn/omfetch/sys/windows/registry"
+	"github.com/fischyn/wfetch/sys/dll"
+	"github.com/fischyn/wfetch/sys/registry"
 
 	"golang.org/x/sys/windows"
 )
@@ -60,6 +61,7 @@ func GetGPUsInfo(gpus *[]GPUResult) error {
 	}
 
 	for _, dev := range devices {
+		os.TempDir()
 		name, _ := setupDiGetDeviceRegistryProperty(devInfoSet, &dev, SPDRP_DEVICEDESC)
 
 		regKey, err := setupDiOpenDevRegKey(devInfoSet, &dev)

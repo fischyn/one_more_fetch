@@ -5,8 +5,8 @@ import (
 
 	"bytes"
 
-	"github.com/fischyn/omfetch/encoding"
-	"github.com/fischyn/omfetch/sys/cpu"
+	"github.com/fischyn/wfetch/encoding"
+	"github.com/fischyn/wfetch/sys/cpu"
 )
 
 func TestMarshalUnmarshalCPU(t *testing.T) {

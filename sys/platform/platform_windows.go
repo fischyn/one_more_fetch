@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fischyn/omfetch/sys/windows/registry"
+	"github.com/fischyn/wfetch/sys/registry"
 	"golang.org/x/sys/windows"
 )
 
-func GetPlatform(pLatform *PlatformResult, opt PlatformOptions) error {
+func GetPlatform(pLatform *PlatformResult) error {
 	var key windows.Handle
 
 	err := windows.RegOpenKeyEx(
@@ -28,27 +28,25 @@ func GetPlatform(pLatform *PlatformResult, opt PlatformOptions) error {
 
 	defer windows.RegCloseKey(key)
 
-	if opt.ShowPlatform {
-		productName, err := registry.ReadRegSZ(key, `ProductName`)
+	productName, err := registry.ReadRegSZ(key, `ProductName`)
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
 
-		pLatform.Platform = windows.UTF16ToString(productName)
+	pLatform.Platform = windows.UTF16ToString(productName)
 
-		if strings.Contains(pLatform.Platform, "Windows 10") {
-			buildNumber, err := registry.ReadRegSZ(key, `CurrentBuildNumber`)
+	if strings.Contains(pLatform.Platform, "Windows 10") {
+		buildNumber, err := registry.ReadRegSZ(key, `CurrentBuildNumber`)
 
-			if err == nil {
+		if err == nil {
 
-				if buildNumber, err := strconv.ParseInt(
-					windows.UTF16ToString(buildNumber),
-					10,
-					32,
-				); err == nil && buildNumber >= 22000 {
-					pLatform.Platform = strings.Replace(pLatform.Platform, "Windows 10", "Windows 11", 1)
-				}
+			if buildNumber, err := strconv.ParseInt(
+				windows.UTF16ToString(buildNumber),
+				10,
+				32,
+			); err == nil && buildNumber >= 22000 {
+				pLatform.Platform = strings.Replace(pLatform.Platform, "Windows 10", "Windows 11", 1)
 			}
 		}
 
@@ -63,53 +61,38 @@ func GetPlatform(pLatform *PlatformResult, opt PlatformOptions) error {
 		}
 	}
 
-	if opt.ShowDisplayVersion {
-		displayVersion, err := registry.ReadRegSZ(key, `DisplayVersion`)
+	displayVersion, err := registry.ReadRegSZ(key, `DisplayVersion`)
 
-		if err != nil {
-			return err
-		}
-
-		pLatform.DisplayVersion = windows.UTF16ToString(displayVersion)
+	if err != nil {
+		return err
 	}
 
-	var versionInfo *windows.OsVersionInfoEx
+	pLatform.DisplayVersion = windows.UTF16ToString(displayVersion)
 
-	if opt.ShowVersion {
+	versionInfo := windows.RtlGetVersion()
 
-		versionInfo = windows.RtlGetVersion()
+	UBR, err := registry.ReadRegDWORD(key, `UBR`)
 
-		UBR, err := registry.ReadRegDWORD(key, `UBR`)
-
-		if err != nil {
-			return err
-		}
-
-		pLatform.Version = fmt.Sprintf("%d.%d.%d.%d Build %d.%d",
-			versionInfo.MajorVersion,
-			versionInfo.MinorVersion,
-			versionInfo.BuildNumber,
-			UBR,
-			versionInfo.BuildNumber,
-			UBR,
-		)
-
+	if err != nil {
+		return err
 	}
 
-	if opt.ShowPlatform {
+	pLatform.Version = fmt.Sprintf("%d.%d.%d.%d Build %d.%d",
+		versionInfo.MajorVersion,
+		versionInfo.MinorVersion,
+		versionInfo.BuildNumber,
+		UBR,
+		versionInfo.BuildNumber,
+		UBR,
+	)
 
-		if versionInfo == nil {
-			versionInfo = windows.RtlGetVersion()
-		}
-
-		switch versionInfo.ProductType {
-		case 1:
-			pLatform.Family = "Standalone Workstation"
-		case 2:
-			pLatform.Family = "Server (Domain Controller)"
-		case 3:
-			pLatform.Family = "Server"
-		}
+	switch versionInfo.ProductType {
+	case 1:
+		pLatform.Family = "Standalone Workstation"
+	case 2:
+		pLatform.Family = "Server (Domain Controller)"
+	case 3:
+		pLatform.Family = "Server"
 	}
 
 	return nil

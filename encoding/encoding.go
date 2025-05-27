@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/fischyn/omfetch/sys/cpu"
+	"github.com/fischyn/wfetch/sys/cpu"
 )
 
 type FIELD uint8

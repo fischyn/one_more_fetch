@@ -5,7 +5,7 @@ package mem
 import (
 	"unsafe"
 
-	"github.com/fischyn/omfetch/sys/windows/dll"
+	"github.com/fischyn/wfetch/sys/dll"
 
 	"golang.org/x/sys/windows"
 )

@@ -5,8 +5,8 @@ package cpu
 import (
 	"unsafe"
 
-	"github.com/fischyn/omfetch/sys/windows/dll"
-	"github.com/fischyn/omfetch/sys/windows/registry"
+	"github.com/fischyn/wfetch/sys/dll"
+	"github.com/fischyn/wfetch/sys/registry"
 
 	"golang.org/x/sys/windows"
 )
