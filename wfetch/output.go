@@ -21,14 +21,15 @@ import (
 const DELTA = 9
 
 var (
-	biosColor     = color.New(color.FgYellow).SprintFunc()
-	cpuColor      = color.New(color.FgCyan).SprintFunc()
-	gpuColor      = color.New(color.FgBlue).SprintFunc()
-	memoryColor   = color.New(color.FgMagenta).SprintFunc()
-	platformColor = color.New(color.FgHiBlue).SprintFunc()
-	hostColor     = color.New(color.FgWhite).SprintFunc()
-	userColor     = color.New(color.FgRed).SprintFunc()
-	asciiColor    = color.New(color.FgGreen).SprintFunc()
+	biosColor       = color.New(color.FgYellow).SprintFunc()
+	cpuColor        = color.New(color.FgCyan).SprintFunc()
+	gpuColor        = color.New(color.FgBlue).SprintFunc()
+	memoryColor     = color.New(color.FgMagenta).SprintFunc()
+	resolutionColor = color.New(color.FgGreen).SprintFunc()
+	platformColor   = color.New(color.FgHiBlue).SprintFunc()
+	hostColor       = color.New(color.FgWhite).SprintFunc()
+	userColor       = color.New(color.FgRed).SprintFunc()
+	asciiColor      = color.New(color.FgGreen).SprintFunc()
 )
 
 func run(wg *sync.WaitGroup, errCh chan<- error, f func() error) {
@@ -140,6 +141,9 @@ func Fetch() {
 	}
 
 	rightLines = append(rightLines,
+		resolutionColor("Resolution:"),
+		fmt.Sprintf("  %dx%d", resolution.Horizontal, resolution.Vertical),
+		"",
 		memoryColor("Memory Info:"),
 		fmt.Sprintf("  Total: %d MB", memoryResult.Total/1024/1024),
 		fmt.Sprintf("  Available: %d MB", memoryResult.Avail/1024/1024),
